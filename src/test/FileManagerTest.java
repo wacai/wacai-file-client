@@ -17,25 +17,27 @@ import java.util.List;
 public class FileManagerTest {
 
     static Logger log = LoggerFactory.getLogger(FileManagerTest.class);
-
+    //配置参数
     static String appKey = "3y3nmtkx3ykc";
     static String appSecret = "8cnukuk9tu7annnr";
     static String gatewayAuthUrl = "http://open-token-boot.loan.k2.test.wacai.info/token/auth";
     static String url = "http://file.test.wacai.info";
     static String namespace = "wodlee-bops";
+
     public static void main(String args[]) throws IOException {
 
         CapableFileManager fileManager = new CapableFileManager(url,namespace,appKey,appSecret,gatewayAuthUrl);
         fileManager.setTimeout(1000);//超时时间
         fileManager.setExecTimes(2);//执行次数
-        uploadOneFile(fileManager);
-        uploadFiles(fileManager);
+        uploadOneFile(fileManager); //上传单个文件
+        uploadFiles(fileManager); //上传多个文件
         Response<RemoteFile> response = uploadOneStream(fileManager);
-        uploadOneStreams(fileManager);
-        download(fileManager);
-        downloadSecretkey(fileManager,response.getData().getSecretKey(),response.getData().getFilename());
+        uploadOneStreams(fileManager); //以流的方式上传文件
+        download(fileManager); //下载文件方式1
+        downloadSecretkey(fileManager,response.getData().getSecretKey(),response.getData().getFilename()); //方式下载文件方式2
     }
 
+    //上传单个文件
     private static void uploadOneFile(CapableFileManager fileManager) throws IOException {
         LocalFile localFile = new LocalFile();
         localFile.setFile(new File("D:\\1.txt"));
