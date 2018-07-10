@@ -49,7 +49,7 @@ public class FileManagerTest {
         LocalFile localFile = new LocalFile();
         localFile.setFile(new File("D:\\1.txt"));
         localFile.setFilename("file.txt"); //上传到服务器时的名称
-        Response<RemoteFile> response = fileManager.uploadFileRetry(localFile);
+        Response<RemoteFile> response = fileManager.uploadFile(localFile);
         log.info("uploadOneFile response:{}",response);
     }
 

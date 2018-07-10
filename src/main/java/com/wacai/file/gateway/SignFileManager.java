@@ -63,9 +63,9 @@ public class SignFileManager {
         String tempUrl =  url.endsWith("/") ? (url + "upload/normal/" + namespace)  : (url + "/upload/normal/" + namespace);
         HttpPost httpPost = new HttpPost(tempUrl);
         httpPost.setHeader("appKey",appKey);
-        String plainText = "appKey" + "=" + appKey ;
+        StringBuffer plainText = new StringBuffer("appKey" + "=" + appKey);
         httpPost.setEntity(assemblyFilesEntity(localFiles,plainText));
-        httpPost.setHeader("sign",generateSign(plainText,appSecret));
+        httpPost.setHeader("sign",generateSign(plainText.toString(),appSecret));
         String result = client.execute(httpPost, new BasicResponseHandler());
         ObjectMapper mapper = new ObjectMapper();
         Response<List<RemoteFile>> res = mapper.readValue(result,new TypeReference<Response<List<RemoteFile>>>(){});
@@ -76,9 +76,9 @@ public class SignFileManager {
         String tempUrl =  url.endsWith("/") ? (url + "upload/normal/" + namespace)  : (url + "/upload/normal/" + namespace);
         HttpPost httpPost = new HttpPost(tempUrl);
         httpPost.setHeader("appKey",appKey);
-        String plainText = "appKey" + "=" + appKey ;
+        StringBuffer plainText = new StringBuffer("appKey" + "=" + appKey) ;
         httpPost.setEntity(assemblyStreamsEntity(streamFiles,plainText));
-        httpPost.setHeader("sign",generateSign(plainText,appSecret));
+        httpPost.setHeader("sign",generateSign(plainText.toString(),appSecret));
 
         String result = client.execute(httpPost, new BasicResponseHandler());
         ObjectMapper mapper = new ObjectMapper();
@@ -90,9 +90,9 @@ public class SignFileManager {
         String tempUrl =  url.endsWith("/") ? (url + "upload/online/" + namespace)  : (url + "/upload/online/" + namespace);
         HttpPost httpPost = new HttpPost(tempUrl);
         httpPost.setHeader("appKey",appKey);
-        String plainText = "appKey" + "=" + appKey ;
+        StringBuffer plainText = new StringBuffer("appKey" + "=" + appKey) ;
         httpPost.setEntity(assemblyFileEntity(localFile,plainText));
-        httpPost.setHeader("sign",generateSign(plainText,appSecret));
+        httpPost.setHeader("sign",generateSign(plainText.toString(),appSecret));
         String result = client.execute(httpPost, new BasicResponseHandler());
         ObjectMapper mapper = new ObjectMapper();
         Response<RemoteFile> res = mapper.readValue(result,new TypeReference<Response<RemoteFile>>(){});
@@ -103,20 +103,20 @@ public class SignFileManager {
         String tempUrl =  url.endsWith("/") ? (url + "upload/online/" + namespace)  : (url + "/upload/online/" + namespace);
         HttpPost httpPost = new HttpPost(tempUrl);
         httpPost.setHeader("appKey",appKey);
-        String plainText = "appKey" + "=" + appKey ;
+        StringBuffer plainText = new StringBuffer("appKey" + "=" + appKey);
         httpPost.setEntity(assemblyStreamEntity(streamFile,plainText));
-        httpPost.setHeader("sign",generateSign(plainText,appSecret));
+        httpPost.setHeader("sign",generateSign(plainText.toString(),appSecret));
         String result = client.execute(httpPost, new BasicResponseHandler());
         ObjectMapper mapper = new ObjectMapper();
         Response<RemoteFile> res = mapper.readValue(result,new TypeReference<Response<RemoteFile>>(){});
         return res;
     }
 
-    private HttpEntity assemblyFileEntity(final LocalFile localFile,String plainText){
+    private HttpEntity assemblyFileEntity(final LocalFile localFile,StringBuffer plainText){
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         builder.addBinaryBody("file", localFile.getFile());
-        plainText = plainText + "|" + localFile.getFilename();
+        plainText.append("|").append(localFile.getFilename());
         builder.addTextBody("filename",localFile.getFilename());
         if(localFile.getExpireSeconds() != null)
             builder.addTextBody("expireSeconds",localFile.getExpireSeconds().toString());
@@ -124,36 +124,36 @@ public class SignFileManager {
         return entity;
     }
 
-    private HttpEntity assemblyStreamEntity(final StreamFile streamFile,String plainText) throws FileNotFoundException {
+    private HttpEntity assemblyStreamEntity(final StreamFile streamFile,StringBuffer plainText) throws FileNotFoundException {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         ContentBody contentBody = new InputStreamBody(streamFile.getInputStream(),streamFile.getFilename());
         builder.addPart("file", contentBody);
-        plainText = plainText + "|" + contentBody.getFilename();
+        plainText.append("|").append(contentBody.getFilename());
         if(streamFile.getExpireSeconds() != null)
             builder.addTextBody("expireSeconds",streamFile.getExpireSeconds().toString());
         HttpEntity entity = builder.build();
         return entity;
     }
 
-    private HttpEntity assemblyFilesEntity(final List<LocalFile> localFiles,String plainText){
+    private HttpEntity assemblyFilesEntity(final List<LocalFile> localFiles,StringBuffer plainText){
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         for (LocalFile localFile : localFiles) {
             builder.addBinaryBody("files", localFile.getFile());
-            plainText = plainText  + "|" + localFile.getFilename();
+            plainText.append("|").append(localFile.getFilename());
         }
         HttpEntity entity = builder.build();
         return entity;
     }
 
-    private HttpEntity assemblyStreamsEntity(final List<StreamFile> streamFiles,String plainText){
+    private HttpEntity assemblyStreamsEntity(final List<StreamFile> streamFiles,StringBuffer plainText){
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         for (StreamFile streamFile : streamFiles) {//todo 好奇怪;明明是封装啊
             ContentBody contentBody = new InputStreamBody(streamFile.getInputStream(),streamFile.getFilename());
             builder.addPart("files", contentBody);
-            plainText = plainText  + "|" + contentBody.getFilename();
+            plainText.append("|").append(contentBody.getFilename());
         }
         HttpEntity entity = builder.build();
         return entity;

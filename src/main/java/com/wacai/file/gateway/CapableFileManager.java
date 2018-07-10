@@ -21,6 +21,7 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -140,7 +141,7 @@ public class CapableFileManager {
         return res;
     }
 
-    private Response<RemoteFile> uploadFile(LocalFile localFile) throws IOException {
+    public Response<RemoteFile> uploadFile(LocalFile localFile) throws IOException {
         String tempUrl =  url.endsWith("/") ? (url + "upload/online/" + namespace)  : (url + "/upload/online/" + namespace);
         HttpPost httpPost = new HttpPost(tempUrl);
         this.generateHeaders(httpPost);
@@ -239,9 +240,7 @@ public class CapableFileManager {
         this.generateHeaders(httpGet);
         CloseableHttpResponse response = client.execute(httpGet);
         if(response.getStatusLine().getStatusCode() != 200){
-            ObjectMapper mapper = new ObjectMapper();
-            Response response1 = mapper.readValue(response.getEntity().getContent(),Response.class);
-            log.error("download exception:{}", response1);
+            log.error("download exception:{}", EntityUtils.toString(response.getEntity()));
             return null;
         }
         return response.getEntity().getContent();
@@ -255,9 +254,7 @@ public class CapableFileManager {
         HttpGet httpGet = new HttpGet(tempUrl);
         CloseableHttpResponse response = client.execute(httpGet);
         if(response.getStatusLine().getStatusCode() != 200){
-            ObjectMapper mapper = new ObjectMapper();
-            Response response1 = mapper.readValue(response.getEntity().getContent(),Response.class);
-            log.error("downloadSecretKey exception:{}", response1);
+            log.error("downloadSecretKey exception:{}", EntityUtils.toString(response.getEntity()));
             return null;
         }
         return response.getEntity().getContent();
