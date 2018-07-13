@@ -1,5 +1,4 @@
 import com.wacai.file.gateway.SignFileManager;
-import com.wacai.file.gateway.SignFileManager;
 import com.wacai.file.gateway.entity.LocalFile;
 import com.wacai.file.gateway.entity.RemoteFile;
 import com.wacai.file.gateway.entity.Response;
@@ -22,8 +21,8 @@ public class SignManagerTest {
     static String appKey = "3y3nmtkx3ykc";
     static String appSecret = "8cnukuk9tu7annnr";
     static String gatewayAuthUrl = "http://open-token-boot.loan.k2.test.wacai.info/token/auth";
-    static String url = "http://file.test.wacai.info";
-    static String namespace = "kd-dubbo";
+    static String url = "http://127.0.0.1:8080";
+    static String namespace = "test";
 
 //    //配置参数
 //    static String appKey = "whb7mdd6kte3";
@@ -40,7 +39,7 @@ public class SignManagerTest {
         uploadFiles(fileManager); //上传多个文件
         Response<RemoteFile> response = uploadOneStream(fileManager);
         uploadOneStreams(fileManager); //以流的方式上传文件
-        download(fileManager); //下载文件方式1
+        download(fileManager,response.getData().getFilename()); //下载文件方式1
     }
 
     //上传单个文件
@@ -88,8 +87,8 @@ public class SignManagerTest {
         log.info("responseList:{}",response);
     }
 
-    private static void download(SignFileManager fileManager) throws IOException {
-        RemoteFile remoteFile = new RemoteFile("AAABY0qdPhGXfZRTVWuvl3StGPn0HhbM.txt",namespace);
+    private static void download(SignFileManager fileManager,String filename) throws IOException {
+        RemoteFile remoteFile = new RemoteFile(filename,namespace);
         InputStream is = fileManager.download(remoteFile);
         OutputStream os = new FileOutputStream("xx");
         StreamUtils.copy(is,os);

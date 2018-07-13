@@ -11,13 +11,14 @@ import com.wacai.file.token.ApplyToken;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpMessage;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -28,6 +29,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -51,6 +55,9 @@ public class SignFileManager {
     private HttpClientFactory httpClientFactory = new HttpClientFactory();
 
     public SignFileManager(String url, String namespace, String appKey, String appSecret, String gatewayAuthUrl) {
+        this.appKey = appKey;
+        this.appSecret = appSecret;
+        this.gatewayAuthUrl = gatewayAuthUrl;
         this.url = url;
         this.namespace = namespace;
         this.applyToken = new ApplyToken(appKey,appSecret,gatewayAuthUrl);
@@ -60,7 +67,7 @@ public class SignFileManager {
 
 
     public Response<List<RemoteFile>> uploadFiles(List<LocalFile> localFiles) throws IOException {
-        String tempUrl =  url.endsWith("/") ? (url + "upload/normal/" + namespace)  : (url + "/upload/normal/" + namespace);
+        String tempUrl =  url.endsWith("/") ? (url + "upload/sign/normal/" + namespace)  : (url + "/upload/sign/normal/" + namespace);
         HttpPost httpPost = new HttpPost(tempUrl);
         httpPost.setHeader("appKey",appKey);
         StringBuffer plainText = new StringBuffer("appKey" + "=" + appKey);
@@ -73,7 +80,7 @@ public class SignFileManager {
     }
 
     public Response<List<RemoteFile>> uploadStreams(List<StreamFile> streamFiles) throws IOException {
-        String tempUrl =  url.endsWith("/") ? (url + "upload/normal/" + namespace)  : (url + "/upload/normal/" + namespace);
+        String tempUrl =  url.endsWith("/") ? (url + "upload/sign/normal/" + namespace)  : (url + "/upload/sign/normal/" + namespace);
         HttpPost httpPost = new HttpPost(tempUrl);
         httpPost.setHeader("appKey",appKey);
         StringBuffer plainText = new StringBuffer("appKey" + "=" + appKey) ;
@@ -87,7 +94,7 @@ public class SignFileManager {
     }
 
     public Response<RemoteFile> uploadFile(LocalFile localFile) throws IOException {
-        String tempUrl =  url.endsWith("/") ? (url + "upload/online/" + namespace)  : (url + "/upload/online/" + namespace);
+        String tempUrl =  url.endsWith("/") ? (url + "upload/sign/online/" + namespace)  : (url + "/upload/sign/online/" + namespace);
         HttpPost httpPost = new HttpPost(tempUrl);
         httpPost.setHeader("appKey",appKey);
         StringBuffer plainText = new StringBuffer("appKey" + "=" + appKey) ;
@@ -100,7 +107,7 @@ public class SignFileManager {
     }
 
     public Response<RemoteFile> uploadStream(StreamFile streamFile) throws IOException {
-        String tempUrl =  url.endsWith("/") ? (url + "upload/online/" + namespace)  : (url + "/upload/online/" + namespace);
+        String tempUrl =  url.endsWith("/") ? (url + "upload/sign/online/" + namespace)  : (url + "/upload/sign/online/" + namespace);
         HttpPost httpPost = new HttpPost(tempUrl);
         httpPost.setHeader("appKey",appKey);
         StringBuffer plainText = new StringBuffer("appKey" + "=" + appKey);
@@ -140,8 +147,8 @@ public class SignFileManager {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         for (LocalFile localFile : localFiles) {
-            builder.addBinaryBody("files", localFile.getFile());
-            plainText.append("|").append(localFile.getFilename());
+            builder.addPart("files", new FileBody(localFile.getFile(), getContentType(localFile.getFile().getName())));
+            plainText.append("|").append(localFile.getFile().getName());
         }
         HttpEntity entity = builder.build();
         return entity;
@@ -160,7 +167,7 @@ public class SignFileManager {
     }
 
     public InputStream download(RemoteFile remoteFile) throws IOException {
-        String tempUrl =  url.endsWith("/") ? (url +  "download/" + remoteFile.getNamespace() + "/" + remoteFile.getFilename() + "/")  : (url +  "/download/" + remoteFile.getNamespace() + "/" + remoteFile.getFilename() + "/");
+        String tempUrl =  url.endsWith("/") ? (url +  "download/sign/" + remoteFile.getNamespace() + "/" + remoteFile.getFilename() + "/")  : (url +  "/download/sign/" + remoteFile.getNamespace() + "/" + remoteFile.getFilename() + "/");
         HttpGet httpGet = new HttpGet(tempUrl);
         httpGet.setHeader("appKey",appKey);
         String plainText = "appKey" + "=" + appKey + "|" + remoteFile.getFilename();
@@ -175,9 +182,17 @@ public class SignFileManager {
         return response.getEntity().getContent();
     }
 
-    private void generateHeaders(HttpMessage httpMessage) {
-        httpMessage.setHeader("appKey",appKey);
-        httpMessage.setHeader("sign","sing");
+    public static ContentType getContentType(String filename){
+        try {
+            Path path = Paths.get(filename);
+            String contentType = Files.probeContentType(path);
+            if(contentType == null){
+                return ContentType.APPLICATION_OCTET_STREAM;
+            }
+            return ContentType.create(contentType);
+        }catch (Exception e){
+            return ContentType.APPLICATION_OCTET_STREAM;
+        }
     }
 
 

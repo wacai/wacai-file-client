@@ -48,6 +48,9 @@ public class CapableFileManager {
     private HttpClientFactory httpClientFactory = new HttpClientFactory();
 
     public CapableFileManager(String url, String namespace, String appKey, String appSecret, String gatewayAuthUrl) {
+        this.appKey = appKey;
+        this.appSecret = appSecret;
+        this.gatewayAuthUrl = gatewayAuthUrl;
         this.url = url;
         this.namespace = namespace;
         this.applyToken = new ApplyToken(appKey,appSecret,gatewayAuthUrl);
