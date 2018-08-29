@@ -21,7 +21,7 @@ public class SignManagerTest {
     static String appKey = "3y3nmtkx3ykc";
     static String appSecret = "8cnukuk9tu7annnr";
     static String gatewayAuthUrl = "http://open-token-boot.loan.k2.test.wacai.info/token/auth";
-    static String url = "http://file.ngrok.wacaiyum.com";
+    static String url = "http://file.ngrok.wacaiyun.com";
     static String namespace = "test";
 
 //    //配置参数
