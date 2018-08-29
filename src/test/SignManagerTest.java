@@ -21,7 +21,7 @@ public class SignManagerTest {
     static String appKey = "3y3nmtkx3ykc";
     static String appSecret = "8cnukuk9tu7annnr";
     static String gatewayAuthUrl = "http://open-token-boot.loan.k2.test.wacai.info/token/auth";
-    static String url = "http://127.0.0.1:8080";
+    static String url = "http://file.ngrok.wacaiyum.com";
     static String namespace = "test";
 
 //    //配置参数
@@ -32,7 +32,9 @@ public class SignManagerTest {
 //    static String namespace = "kd-dubbo";
 
     public static void main(String args[]) throws IOException {
-
+        System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
+        System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
+        System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "debug");// "stdout"为标准输出格式，"debug"为调试模式
         SignFileManager fileManager = new SignFileManager(url,namespace,appKey,appSecret,gatewayAuthUrl);
         fileManager.setTimeout(1000);//超时时间
         uploadOneFile(fileManager); //上传单个文件
