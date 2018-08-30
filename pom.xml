@@ -9,6 +9,8 @@
   <version>1.0.0</version>
 
   <name>wacai-file-client</name>
+  <description>wacai file client</description>
+  <url>https://github.com/wacai/wacai-file-client</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -16,6 +18,26 @@
     <maven.compiler.target>1.7</maven.compiler.target>
     <spring.version>4.3.11.RELEASE</spring.version>
   </properties>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>fulushou</name>
+            <email>fulushou@wacai.com</email>
+            <organization>com.wacai</organization>
+            <url>https://github.com/wacai/wacai-file-client.git</url>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git@github.com:wacai/wacai-file-client.git</connection>
+        <developerConnection>scm:git@github.com:wacai/wacai-file-client.git</developerConnection>
+        <url>https://github.com/wacai/wacai-file-client/tree/master</url>
+    </scm>
 
   <dependencies>
           <dependency>
