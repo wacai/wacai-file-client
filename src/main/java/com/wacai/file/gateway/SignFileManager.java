@@ -43,9 +43,6 @@ import java.util.List;
 public class SignFileManager {
     private String appKey = "";
     private String appSecret = "";
-    private String gatewayAuthUrl = "";
-    private volatile String xAccessToken = null;
-    private ApplyToken applyToken;
     private String url;
     private String namespace;
 
@@ -54,13 +51,11 @@ public class SignFileManager {
     //可以自己进行设置参数，替换默认值
     private HttpClientFactory httpClientFactory = new HttpClientFactory();
 
-    public SignFileManager(String url, String namespace, String appKey, String appSecret, String gatewayAuthUrl) {
+    public SignFileManager(String url, String namespace, String appKey, String appSecret) {
         this.appKey = appKey;
         this.appSecret = appSecret;
-        this.gatewayAuthUrl = gatewayAuthUrl;
         this.url = url;
         this.namespace = namespace;
-        this.applyToken = new ApplyToken(appKey,appSecret,gatewayAuthUrl);
         this.setTimeout(10000);
         client = httpClientFactory.getHttpClient();
     }
