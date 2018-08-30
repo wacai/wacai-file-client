@@ -21,15 +21,8 @@ public class SignManagerTest {
     static String appKey = "3y3nmtkx3ykc";
     static String appSecret = "8cnukuk9tu7annnr";
     static String gatewayAuthUrl = "http://open-token-boot.loan.k2.test.wacai.info/token/auth";
-    static String url = "http://file.ngrok.wacaiyun.com";
+    static String url = "https://file.ngrok.wacaiyun.com";
     static String namespace = "test";
-
-//    //配置参数
-//    static String appKey = "whb7mdd6kte3";
-//    static String appSecret = "vt34mewq6hbhc433";
-//    static String gatewayAuthUrl = "http://open.wacai.com/token/auth";
-//    static String url = "http://file.wacai.com";
-//    static String namespace = "kd-dubbo";
 
     public static void main(String args[]) throws IOException {
         System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
