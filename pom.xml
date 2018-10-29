@@ -6,7 +6,7 @@
 
   <groupId>com.wacai</groupId>
   <artifactId>wacai-file-client</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 
   <name>wacai-file-client</name>
   <description>wacai file client</description>
