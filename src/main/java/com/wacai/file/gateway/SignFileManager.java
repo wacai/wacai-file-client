@@ -1,15 +1,22 @@
 package com.wacai.file.gateway;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wacai.file.gateway.entity.LocalFile;
-import com.wacai.file.gateway.entity.RemoteFile;
-import com.wacai.file.gateway.entity.Response;
-import com.wacai.file.gateway.entity.StreamFile;
-import com.wacai.file.http.HttpClientFactory;
-import com.wacai.file.token.ApplyToken;
-import lombok.extern.slf4j.Slf4j;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.UUID;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -23,24 +30,24 @@ import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wacai.file.gateway.entity.LocalFile;
+import com.wacai.file.gateway.entity.RemoteFile;
+import com.wacai.file.gateway.entity.Response;
+import com.wacai.file.gateway.entity.StreamFile;
+import com.wacai.file.http.HttpClientFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by fulushou on 2018/7/9.
  */
 @Slf4j
 public class SignFileManager {
+	
+	public static final ContentType TEXT_PLAIN_UTF8 = ContentType.create("text/plain", Consts.UTF_8);
+	
     private String appKey = "";
     private String appSecret = "";
     private String url;
@@ -118,8 +125,12 @@ public class SignFileManager {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         builder.addBinaryBody("file", localFile.getFile());
-        plainText.append("|").append(localFile.getFilename());
-        builder.addTextBody("filename",localFile.getFilename());
+        if (localFile.getFilename() == null || "".equals(localFile.getFilename().trim())) {
+        	 plainText.append("|").append(localFile.getFile().getName());
+        } else {
+        	 plainText.append("|").append(localFile.getFilename());
+             builder.addTextBody("filename",localFile.getFilename(), TEXT_PLAIN_UTF8);
+        }
         if(localFile.getExpireSeconds() != null)
             builder.addTextBody("expireSeconds",localFile.getExpireSeconds().toString());
         HttpEntity entity = builder.build();
@@ -129,9 +140,14 @@ public class SignFileManager {
     private HttpEntity assemblyStreamEntity(final StreamFile streamFile,StringBuffer plainText) throws FileNotFoundException {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        ContentBody contentBody = new InputStreamBody(streamFile.getInputStream(),streamFile.getFilename());
+        String orginalFile = streamFile.getFilename();
+        if (orginalFile == null || "".equals(orginalFile.trim())) {
+        	orginalFile = UUID.randomUUID().toString();
+        }
+        ContentBody contentBody = new InputStreamBody(streamFile.getInputStream(), orginalFile);
         builder.addPart("file", contentBody);
         plainText.append("|").append(contentBody.getFilename());
+        builder.addTextBody("filename", contentBody.getFilename(), TEXT_PLAIN_UTF8);
         if(streamFile.getExpireSeconds() != null)
             builder.addTextBody("expireSeconds",streamFile.getExpireSeconds().toString());
         HttpEntity entity = builder.build();
@@ -153,10 +169,15 @@ public class SignFileManager {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         for (StreamFile streamFile : streamFiles) {//todo 好奇怪;明明是封装啊
-            ContentBody contentBody = new InputStreamBody(streamFile.getInputStream(),streamFile.getFilename());
+            String orginalFilename = streamFile.getFilename();
+            if (orginalFilename == null || "".equals(orginalFilename.trim())) {
+            	orginalFilename = UUID.randomUUID().toString();
+            }
+			ContentBody contentBody = new InputStreamBody(streamFile.getInputStream(), orginalFilename);
             builder.addPart("files", contentBody);
             plainText.append("|").append(contentBody.getFilename());
         }
+        builder.setCharset(StandardCharsets.UTF_8);
         HttpEntity entity = builder.build();
         return entity;
     }

@@ -1,3 +1,6 @@
 .idea/
 target/
 wacai-file-client.iml
+/.classpath
+/.gitignore
+/.project

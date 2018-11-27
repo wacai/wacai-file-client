@@ -6,7 +6,7 @@
 
   <groupId>com.wacai</groupId>
   <artifactId>wacai-file-client</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 
   <name>wacai-file-client</name>
   <description>wacai file client</description>
@@ -89,6 +89,13 @@
           <version>1.2.3</version>
           <scope>provided</scope>
       </dependency>
+      
+      <dependency>
+		  <groupId>junit</groupId>
+		  <artifactId>junit</artifactId>
+		  <scope>test</scope>
+		  <version>4.12</version>
+	  </dependency>
   </dependencies>
 
 
