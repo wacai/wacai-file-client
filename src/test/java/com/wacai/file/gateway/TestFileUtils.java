@@ -24,9 +24,14 @@ public class TestFileUtils {
 	 * @return 测试文件
 	 */
 	public static File genTestFile() {
-		StringBuilder sb = new StringBuilder();
 		Random random = new Random();
-        for (int i = 0; i < random.nextInt(10240); i++) {
+        int filesize = random.nextInt(10240);
+        return genTestFile(filesize);
+	}
+	
+	public static File genTestFile(int filesize) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < (filesize/10); i++) {
         	sb.append("ab12汉字中");
         }
         File testSamplePath = new File(System.getProperty("user.home") + "/domino-test");

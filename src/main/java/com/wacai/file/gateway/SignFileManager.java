@@ -59,14 +59,17 @@ public class SignFileManager {
     private HttpClientFactory httpClientFactory = new HttpClientFactory();
 
     public SignFileManager(String url, String namespace, String appKey, String appSecret) {
+        this(url, namespace, appKey, appSecret, 10000);
+    }
+    
+    public SignFileManager(String url, String namespace, String appKey, String appSecret, int timeoutInMS) {
         this.appKey = appKey;
         this.appSecret = appSecret;
         this.url = url;
         this.namespace = namespace;
-        this.setTimeout(10000);
+        this.setTimeout(timeoutInMS);
         client = httpClientFactory.getHttpClient();
     }
-
 
     public Response<List<RemoteFile>> uploadFiles(List<LocalFile> localFiles) throws IOException {
         String tempUrl =  url.endsWith("/") ? (url + "upload/sign/normal/" + namespace)  : (url + "/upload/sign/normal/" + namespace);
@@ -229,10 +232,39 @@ public class SignFileManager {
         return Base64.encodeBase64URLSafeString(signatureBytes);
     }
 
-
+    /**
+     * 设置超时时间。
+     * 注意： 线程不安全。 因为此方法会重新初始化client，并销毁之前的client。
+     * @param timeout 超时时间 单位毫秒。
+     */
     public void setTimeout(int timeout) {
         httpClientFactory.setConnectTimeout(timeout);
         httpClientFactory.setSocketTimeout(timeout);
         httpClientFactory.setConnectionRequestTimeout(timeout);
+        
+        /**
+         * 销毁之前的client实例，否则可能会存在资源泄露
+         */
+        try {
+			this.destroy();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+        
+        /**
+         * 设置完之后 需要重建client实例，否则还是之前的参数
+         */
+        client = httpClientFactory.getHttpClient();
+    }
+    
+    /**
+     * 用完该实例后 需要调用destroy方法，销毁相应资源。尤其在多实例使用时。
+     * @throws IOException 
+     */
+    public void destroy() throws IOException {
+    	if (this.client == null) {
+    		return;
+    	}
+    	this.client.close();
     }
 }
